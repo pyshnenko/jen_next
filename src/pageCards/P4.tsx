@@ -6,7 +6,7 @@ interface Props {
 
 export default function P2({show}:Props):React.ReactNode {
     return (
-        <div id="page2" className={`page4${show?' show':''}`}>
+        <div id="page4" className={`page2${show?' show':''}`}>
     <h3>Наши курсы</h3>
     <div className="card">
       <div className="carousel">

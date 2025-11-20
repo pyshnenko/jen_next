@@ -1,33 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Props {
-    show: boolean;
+  show: boolean;
 }
 
-export default function P2({show}:Props):React.ReactNode {
-    return (
-        <div id="page2" className={`page7${show?' show':''}`}>
-    <div className="card">
-      <h3>
-        Наша команда
-      </h3>      
-      <div className="card">
-        <div className="carousel">
-          <div className="carousel-item revertable" data-back="Евгений работает в области разработки игр уже более 9 лет, а преподает разработку игр для детей более 7-ти лет. Он обожает Unity и язык программирования C#. В методические материалы он вложил всю свою душу и любовь к программированию.">
-            <img src="./jen/evgen.jpg" />
-            <h5>Евгений</h5>
-            <p>
-              Основатель, Unity разработчик, Создатель методических материалов<br/>Выпускник МГТУ им. Н.Э. Баумана
-            </p>
-          </div>
-          <div className="carousel-item revertable" data-back="Мартин является Fullstack и Python разработчиком более 7 лет.<br>Опыт преподавания детям 5 лет.<br>Язык программирования Python - его страсть, именно поэтому наш курс программирования на этом языке разработан Мартином. Также в нашей команде он отвечает за SMM и наши соц. сети.">
-            <img src="./jen/martin.jpg" />
-            <h5>Мартин</h5>
-            <p>Основатель, Web разработчик, Работа над соц. сетями<br/>Выпускник МГУ им. М.В. Ломоносова</p>
-          </div>
-        </div>
+export default function P7({ show }: Props): React.ReactElement {
+  const [phone, setPhone] = useState<string>('+7');
+  const [city, setCity] = useState<string>('');
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.currentTarget.value.replace(/\D/g, '');
+    // гарантия, что начинается с 7 (код РФ)
+    if (!value.startsWith('7')) value = '7' + value;
+    let formatted = '+7';
+    if (value.length > 1) formatted += ' (' + value.substring(1, 4);
+    if (value.length >= 4) formatted += ') ' + value.substring(4, 7);
+    if (value.length >= 7) formatted += '-' + value.substring(7, 9);
+    if (value.length >= 9) formatted += '-' + value.substring(9, 11);
+    setPhone(formatted.substring(0, 18));
+  };
+
+  return (
+    <div id="page7" className={`page2${show ? ' show' : ''}`}>
+      <div className="card column">
+        <h3>Запишись на первое бесплатное занятие</h3>
+        <form id="studentForm" className="form" method="post">
+          <input
+            type="tel"
+            id="phoneInput"
+            placeholder="+7 (___) ___-__-__"
+            maxLength={18}
+            required
+            name="phone"
+            value={phone}
+            onChange={handlePhoneChange}
+          />
+          <select value={city} id="courseDropdown" required name="city" onChange={(e) => setCity(e.target.value)}>
+            <option value="" disabled>Выберите город</option>
+            <option value="Наро-Фоминск">Наро-Фоминск</option>
+            <option value="Обнинск">Обнинск</option>
+            <option value="Селятино">Селятино</option>
+          </select>
+          <button type="submit" id="submitBtn">Оставить заявку</button>
+        </form>
       </div>
     </div>
-  </div>
-    )
+  );
 }

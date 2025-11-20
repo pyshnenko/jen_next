@@ -1,0 +1,175 @@
+@media (max-width: 900px) {
+  .navbar {
+    display: none;
+  }
+  
+
+/* === Фон — через fixed-див === */
+    body::before {
+        height: 120dvh;
+    }
+    .right_page1 {
+        display: none;
+    }
+    .left_page1 {
+        min-width: auto;
+        width: 100vw;
+    }
+    .page1 .textBlock {  
+        font-size: large;
+    }
+    .gamepad {
+        width: 250px;
+    }
+    #marker {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        top: -50px;
+        left: -50px;
+        animation: bounce 1.5s ease-in-out infinite;
+    }
+    h2 {
+        left: 0;
+    }
+    #mobile_logo {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100vw;
+        color: aliceblue;
+        justify-content: space-around
+    }
+    #mobile_logo img {
+        width: 120px;
+        height: 120px;
+    }
+    .page2 {
+        padding: 0;
+        top: 50%;
+        height: 100dvh;
+        background-color: inherit;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+    .page2 h3 {
+        font-size: larger;
+    }
+    .page2 .textBlock {
+        width: 95%;
+    }
+    .page2 p {
+        font-size: medium;
+    }
+    #rocket {
+        display: none;
+    }
+    h1 {
+       animation: blink-caret .75s step-end infinite;
+    }
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: orange; }
+    }
+    .card {        
+        justify-content: space-around;
+    }
+.content-spacer {
+  height: 4500px;
+}
+#robot {    
+    bottom: -340px;
+}
+.carousel-item {
+    padding: 64px 16px;
+}
+#page3 button {
+    width: 50%;
+}
+#page5 {
+    
+  width: 110%;
+}
+
+#page6 .card img {
+  width: 300px;
+  height: 300px;
+}
+
+ #submitBtn {
+    padding: 12px 24px;
+    font-size: 15px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .address-card {
+    padding: 8px;
+  }
+  .addresses {
+    gap: 10px
+  }
+  #contacts h3 {
+    margin: 8px;
+  }
+  #page9 .card {
+    flex-direction: column-reverse;
+  }
+  #map {
+    width: 100%;
+  }
+    .floating-call-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #013831;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: pulse 1.5s infinite;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Эффект нажатия */
+.floating-call-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Пульсация */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(1, 56, 49, 0.4);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(1, 56, 49, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(1, 56, 49, 0);
+  }
+}
+
+/* Для маленьких экранов */
+@media (max-width: 480px) {
+  .floating-call-button {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    bottom: 15px;
+    right: 15px;
+  }
+}
+}

@@ -1,0 +1,126 @@
+.pacman{
+    position: absolute;
+    bottom: 120px;
+    left: 60px;
+}
+
+.pacman-top{
+  background-color:rgb(255,221,0);
+  height:50px;
+  width:100px;
+  border-radius:100px 100px 0 0;
+  animation: spin1 0.5s infinite linear;
+}
+
+.pacman-bottom{
+background-color:rgb(255,221,0);
+  height:50px;
+  width:100px;
+  border-radius:0 0 100px 100px;
+  animation: spin2 0.5s infinite linear;
+}
+
+.feed {
+margin-top: -88px;
+margin-left:15px;
+width: 15px;
+height: 15px;
+border-radius: 30%;
+-moz-animation: eat 1s linear 0s infinite;
+-webkit-animation: eat 1s linear 0s infinite;
+animation: eat 1s linear 0s infinite;
+}   
+
+/* Animation*/
+
+@keyframes spin1 {
+	0%  {transform: rotate(0deg);}
+	50%{transform: rotate(-35deg);}
+  
+}
+@keyframes spin2 {
+	0%  {transform: rotate(0deg);}
+  50%{transform: rotate(35deg);}	
+}
+
+@-moz-keyframes spin1 {
+	0%  {transform: rotate(0deg);}
+	50%{transform: rotate(-35deg);}
+  
+}
+@-moz-keyframes spin2 {
+	0%  {transform: rotate(0deg);}
+  50%{transform: rotate(35deg);}	
+}
+
+@-webkit-keyframes spin1 {
+	0%  {transform: rotate(0deg);}
+	50%{transform: rotate(-35deg);}
+  
+}
+@-webkit-keyframes spin2 {
+	0%  {transform: rotate(0deg);}
+  50%{transform: rotate(35deg);}	
+}
+
+@keyframes eat {
+0% { box-shadow: 
+      100px 30px 0 0 black, 
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black,
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black, 
+      1300px 30px 0 0 black;}
+  
+100% { box-shadow: 
+      0px 30px 0 0 black, 
+      100px 30px 0 0 black,
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black, 
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black;}
+}
+
+
+@-moz-keyframes eat {
+0% { box-shadow: 
+      100px 30px 0 0 black, 
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black,
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black, 
+      1300px 30px 0 0 black;}
+  
+100% { box-shadow: 
+      0px 30px 0 0 black, 
+      100px 30px 0 0 black,
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black, 
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black;}
+}
+
+
+@-webkit-keyframes eat {
+0%     { box-shadow: 
+      100px 30px 0 0 black, 
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black,
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black, 
+      1300px 30px 0 0 black;}
+  
+100% { box-shadow: 
+      0px 30px 0 0 black, 
+      100px 30px 0 0 black,
+      300px 30px 0 0 black, 
+      500px 30px 0 0 black, 
+      700px 30px 0 0 black, 
+      900px 30px 0 0 black, 
+      1100px 30px 0 0 black;}
+}

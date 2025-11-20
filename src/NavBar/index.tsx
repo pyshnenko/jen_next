@@ -1,0 +1,29 @@
+import React from 'react';
+import Image from 'next/image';
+import '@/public/jen/style.css';
+import '@/public/jen/mobStyle.css';
+
+export default function NavBar():React.ReactNode {
+    return (
+        <nav className="navbar">
+            <div style={{
+                display: 'inline-flex',
+                alignItems: 'center'
+            }}>
+            <Image width={60} height={60} src="/jen/logo.png" alt="Логотип" className="logo" id="topLogo"/>
+            <ul className="nav-links">
+                <li><p id="about">О нас</p></li>
+                <li><p id="courses">Курсы</p></li>
+                <li><p id="team">Команда</p></li>
+                <li><p id="contact">Контакты</p></li>
+            </ul>
+            </div>
+            <a href="tel:+79957578746"><button className="phoneButton">
+                <p style={{
+                    margin: '12px'
+                }}>+7 995 757 87 46</p>
+                </button>
+            </a>
+        </nav>
+    )
+}

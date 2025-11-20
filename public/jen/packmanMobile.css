@@ -1,0 +1,92 @@
+@media (max-width: 900px) {
+    .pacman{
+        left: 20px;
+    }
+    .pacman-top{
+        height:25px;
+        width:50px;
+        border-radius:50px 50px 0 0;
+    }
+
+    .pacman-bottom{
+        height:25px;
+        width:50px;
+        border-radius:0 0 50px 50px;
+    }
+    .feed {
+        margin-top: -58px;
+        width: 7px;
+        height: 7px;
+        -moz-animation: eatMobile 1s linear 0s infinite;
+        -webkit-animation: eatMobile 1s linear 0s infinite;
+        animation: eatMobile 1s linear 0s infinite;
+    }   
+
+    @keyframes eatMobile {
+        0% { box-shadow: 
+            25px 30px 0 0 black, 
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black,
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black, 
+            325px 30px 0 0 black;
+        }
+        
+        100% { box-shadow: 
+            0px 30px 0 0 black, 
+            25px 30px 0 0 black,
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black, 
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black;
+        }
+    }
+
+
+        @-moz-keyframes eatMobile {
+        0% { box-shadow: 
+            25px 30px 0 0 black, 
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black,
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black, 
+            325px 30px 0 0 black;
+        }
+        
+        100% { box-shadow: 
+            0px 30px 0 0 black, 
+            25px 30px 0 0 black,
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black, 
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black;
+        }
+    }
+
+
+        @-webkit-keyframes eatMobile {
+        0%     { box-shadow: 
+            25px 30px 0 0 black, 
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black,
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black, 
+            325px 30px 0 0 black;
+        }
+        
+        100% { box-shadow: 
+            0px 30px 0 0 black, 
+            25px 30px 0 0 black,
+            75px 30px 0 0 black, 
+            125px 30px 0 0 black, 
+            175px 30px 0 0 black, 
+            225px 30px 0 0 black, 
+            275px 30px 0 0 black;
+        }
+    }
+}

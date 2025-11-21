@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 interface Props {
   show: boolean;
@@ -18,6 +19,23 @@ export default function P7({ show }: Props): React.ReactElement {
     if (value.length >= 7) formatted += '-' + value.substring(7, 9);
     if (value.length >= 9) formatted += '-' + value.substring(9, 11);
     setPhone(formatted.substring(0, 18));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone, city
+        }),
+      });
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error('Ошибка при отправке:', error);
+    }
   };
 
   return (
@@ -41,7 +59,7 @@ export default function P7({ show }: Props): React.ReactElement {
             <option value="Обнинск">Обнинск</option>
             <option value="Селятино">Селятино</option>
           </select>
-          <button type="submit" id="submitBtn">Оставить заявку</button>
+          <button type="submit" id="submitBtn" onClick={handleSubmit}>Оставить заявку</button>
         </form>
       </div>
     </div>

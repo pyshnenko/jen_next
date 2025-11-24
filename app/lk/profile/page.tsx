@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 import { useRouter } from "next/navigation";
 import { Box, Button, Typography, TextField, LinearProgress } from "@mui/material";
 
@@ -60,9 +60,11 @@ export default function ProfilePage() {
       const LOCAL_API = process.env.NEXT_PUBLIC_LOCAL_API_URL || 'http://localhost:4001';
       const res = await axios.post(`${LOCAL_API}/upload`, form, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent: ProgressEvent) => {
-          if (progressEvent.total) {
-            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+          const loaded = progressEvent?.loaded ?? 0;
+          const total = progressEvent?.total ?? 0;
+          if (total) {
+            const pct = Math.round((loaded * 100) / total);
             setProgress(pct);
           }
         },

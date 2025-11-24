@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Ubuntu } from "next/font/google";
-import NavBar from "@/src/NavBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +19,7 @@ const ubuntu = Ubuntu({
 
 export const metadata: Metadata = {
   title: "Code_Gap",
-  description: "Школапрограммирования для детей",
+  description: "Школа программирования для детей",
 };
 
 export default function RootLayout({
@@ -33,7 +32,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${ubuntu.variable} ${geistMono.variable} antialiased`}
       >
-        <NavBar />
         {children}
       </body>
     </html>

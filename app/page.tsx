@@ -3,10 +3,12 @@ import Image from "next/image";
 import Script from "next/script";
 import { Box } from "@mui/material";
 import ScrollSections from "@/src/components/ScrollSections";
+import NavBar from "@/src/NavBar";
 
 export default function Home() {
   return (
-    <Box>
+    <Box>      
+      <NavBar />
       {/* importmap must be before any module that uses it */}
       <Script
         id="importmap-three"

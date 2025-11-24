@@ -1,7 +1,11 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
+const multer = require('multer');
 
 const PORT = process.env.LOCAL_API_PORT ? Number(process.env.LOCAL_API_PORT) : 4001;
 
@@ -78,6 +82,46 @@ const User = sequelize.define('User', {
   freezeTableName: true,
 });
 
+//
+// Multer + CORS setup for uploads
+//
+const app = express();
+// Allow browser to POST from Next dev server; allow credentials if needed
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+
+// storage: destination depends on login + projectName
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    try {
+      // multer parses text fields only when using .fields or single with enctype multipart/form-data.
+      // here body may be empty before multer handles it in some setups; use req.body (works with multer)
+      let login = req.body.login || 'anonymous';
+      let projectName = req.body.projectName || 'default';
+
+      // sanitize to avoid traversal
+      login = path.basename(String(login)).replace(/\s+/g, '_');
+      projectName = path.basename(String(projectName)).replace(/\s+/g, '_');
+
+      const uploadDir = path.join(process.cwd(), 'project', login, projectName);
+      console.log(uploadDir)
+      fs.mkdirSync(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    } catch (err) {
+      cb(err);
+    }
+  },
+  filename: (req, file, cb) => {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const name = `${Date.now()}_${safeName}`;
+    cb(null, name);
+  }
+});
+
+// limit size (example 100 MB)
+const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
+
+// existing endpoints use 'app' so moved below initialization of sequelize
 async function start() {
   try {
     await sequelize.authenticate();
@@ -91,9 +135,7 @@ async function start() {
     process.exit(1);
   }
 
-  const app = express();
-  app.use(express.json());
-
+  // routes
   app.get('/users', async (req, res) => {
     try {
       const rows = await User.findAll();
@@ -105,13 +147,33 @@ async function start() {
 
   app.post('/users', async (req, res) => {
     try {
-        const { Id, ...userData } = req.body;
-
-        const created = await User.create(userData);
-        res.status(201).json(created);
+      const { Id, ...userData } = req.body;
+      const created = await User.create(userData);
+      res.status(201).json(created);
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ error: String(err) });
+      console.log(err);
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  // Upload endpoint: expects multipart/form-data with fields:
+  // - login (string)
+  // - projectName (string)
+  // - file (file)
+  app.post('/upload', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+      const login = path.basename(String(req.body.login || 'anonymous')).replace(/\s+/g, '_');
+      const projectName = path.basename(String(req.body.projectName || 'default')).replace(/\s+/g, '_');
+
+      // return saved path relative to server root
+      const relativePath = path.join('project', login, projectName, req.file.filename);
+      res.status(201).json({ message: 'Uploaded', path: `/${relativePath}`, filename: req.file.filename });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Upload error:', err);
+      res.status(500).json({ error: String(err) });
     }
   });
 

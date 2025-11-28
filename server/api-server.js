@@ -6,9 +6,10 @@ const path = require('path');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
 const multer = require('multer');
+const yauzl = require('yauzl');
 
 const PORT = process.env.LOCAL_API_PORT ? Number(process.env.LOCAL_API_PORT) : 4001;
-
+const BASE_PATH = process.env.PROJECT_DIR || process.cwd();
 // --- Strict MySQL-only setup (no sqlite fallback) ---
 let mysql2;
 try {
@@ -40,6 +41,34 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
   define: { freezeTableName: true },
 });
 
+const Project = sequelize.define('Project', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  project_access: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  project_name: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  project_url: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  user_login: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+}, {
+  tableName: 'projects',
+  timestamps: true,
+  freezeTableName: true,
+});
 // модель User (схема соответствует src/lib/models/users.ts)
 const User = sequelize.define('User', {
   Id: {
@@ -103,7 +132,7 @@ const storage = multer.diskStorage({
       login = path.basename(String(login)).replace(/\s+/g, '_');
       projectName = path.basename(String(projectName)).replace(/\s+/g, '_');
 
-      const uploadDir = path.join(process.cwd(), 'project', login, projectName);
+      const uploadDir = path.join(BASE_PATH, 'project', login, projectName);
       console.log(uploadDir)
       fs.mkdirSync(uploadDir, { recursive: true });
       cb(null, uploadDir);
@@ -144,7 +173,20 @@ async function start() {
       res.status(500).json({ error: String(err) });
     }
   });
-
+app.get('/projects/:login', async (req, res) => {
+  try {
+    const { login } = req.params;
+    const projects = await Project.findAll({
+      where: { user_login: login },
+      attributes: ['id', 'project_name', 'project_url', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(projects);
+  } catch (err) {
+    console.error('Error fetching projects:', err);
+    res.status(500).json({ error: 'Failed to fetch projects' });
+  }
+});
   app.post('/users', async (req, res) => {
     try {
       const { Id, ...userData } = req.body;
@@ -160,22 +202,103 @@ async function start() {
   // - login (string)
   // - projectName (string)
   // - file (file)
-  app.post('/upload', upload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-
-      const login = path.basename(String(req.body.login || 'anonymous')).replace(/\s+/g, '_');
-      const projectName = path.basename(String(req.body.projectName || 'default')).replace(/\s+/g, '_');
-
-      // return saved path relative to server root
-      const relativePath = path.join('project', login, projectName, req.file.filename);
-      res.status(201).json({ message: 'Uploaded', path: `/${relativePath}`, filename: req.file.filename });
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Upload error:', err);
-      res.status(500).json({ error: String(err) });
+app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
-  });
+
+    const login = path.basename(String(req.body.login || 'anonymous')).replace(/\s+/g, '_');
+    const projectName = path.basename(String(req.body.projectName || 'default')).replace(/\s+/g, '_');
+
+    const uploadDir = path.join(process.cwd(), 'project', login, projectName);
+
+    // Убедимся, что папка существует
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    // Открываем ZIP-архив
+    yauzl.open(req.file.path, { lazyEntries: true }, (err, zipfile) => {
+      if (err || !zipfile) {
+        return res.status(500).json({ error: 'Failed to open ZIP file' });
+      }
+
+      zipfile.readEntry();
+
+      zipfile.on('end', () => {
+        // После разархивирования — удаляем оригинальный zip
+        fs.unlink(req.file.path, () => {}); // не критично, если не удалится
+
+        // Проверим, есть ли index.html
+        const indexPath = path.join(uploadDir, 'index.html');
+        const hasIndexHtml = fs.existsSync(indexPath);
+        const projectUrl = hasIndexHtml
+          ? `/project/${login}/${projectName}/index.html`
+          : `/project/${login}/${projectName}/`;
+
+        // Создаём/обновляем запись в Project
+        Project.upsert({
+          project_access: 1,
+          project_name: projectName,
+          project_url: projectUrl,
+          user_login: login,
+        }).then(([project]) => {
+          res.status(201).json({
+            message: 'Archive extracted and project saved',
+            project: {
+            id: project.id,
+            project_name: project.project_name,
+            project_url: project.project_url,
+            user_login: project.user_login,
+            },
+          });
+        }).catch((err) => {
+          res.status(500).json({ error: 'Failed to save project', details: err.message });
+        });
+      });
+
+      zipfile.on('entry', (entry) => {
+        if (/\/$/.test(entry.fileName)) {
+          // Это папка
+          const dirPath = path.join(uploadDir, entry.fileName);
+          fs.mkdirSync(dirPath, { recursive: true });
+          zipfile.readEntry();
+        } else {
+          // Это файл
+          zipfile.openReadStream(entry, (err, readStream) => {
+            if (err) {
+              console.error('Error reading entry:', err);
+              return;
+            }
+
+            const fullPath = path.join(uploadDir, entry.fileName);
+            const dir = path.dirname(fullPath);
+            fs.mkdirSync(dir, { recursive: true });
+
+            const writeStream = fs.createWriteStream(fullPath);
+            readStream.pipe(writeStream);
+
+            writeStream.on('close', () => {
+              zipfile.readEntry();
+            });
+
+            writeStream.on('error', (err) => {
+              console.error('Write stream error:', err);
+              zipfile.readEntry();
+            });
+          });
+        }
+      });
+
+      zipfile.on('error', (err) => {
+        console.error('ZIP error:', err);
+        res.status(500).json({ error: 'Error extracting archive', details: err.message });
+      });
+    });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: String(err) });
+  }
+});
 
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console

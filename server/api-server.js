@@ -225,68 +225,85 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       zipfile.readEntry();
 
       zipfile.on('end', () => {
-        // После разархивирования — удаляем оригинальный zip
-        fs.unlink(req.file.path, () => {}); // не критично, если не удалится
+        // Удаляем zip после распаковки
+        fs.unlink(req.file.path, () => {}); // не критично
 
-        // Проверим, есть ли index.html
+        // Проверяем наличие index.html в распакованной папке
         const indexPath = path.join(uploadDir, 'index.html');
         const hasIndexHtml = fs.existsSync(indexPath);
         const projectUrl = hasIndexHtml
           ? `/project/${login}/${projectName}/index.html`
           : `/project/${login}/${projectName}/`;
 
-        // Создаём/обновляем запись в Project
+        // Сохраняем или обновляем запись
         Project.upsert({
           project_access: 1,
           project_name: projectName,
           project_url: projectUrl,
           user_login: login,
-        }).then(([project]) => {
-          res.status(201).json({
-            message: 'Archive extracted and project saved',
-            project: {
-            id: project.id,
-            project_name: project.project_name,
-            project_url: project.project_url,
-            user_login: project.user_login,
-            },
+        })
+          .then(([project]) => {
+            res.status(201).json({
+              message: 'Archive extracted and project saved',
+              project: {
+                id: project.id,
+                project_name: project.project_name,
+                project_url: project.project_url,
+                user_login: project.user_login,
+              },
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({ error: 'Failed to save project', details: err.message });
           });
-        }).catch((err) => {
-          res.status(500).json({ error: 'Failed to save project', details: err.message });
-        });
       });
 
       zipfile.on('entry', (entry) => {
+        // Пропускаем директории
         if (/\/$/.test(entry.fileName)) {
-          // Это папка
-          const dirPath = path.join(uploadDir, entry.fileName);
-          fs.mkdirSync(dirPath, { recursive: true });
           zipfile.readEntry();
-        } else {
-          // Это файл
-          zipfile.openReadStream(entry, (err, readStream) => {
-            if (err) {
-              console.error('Error reading entry:', err);
-              return;
-            }
-
-            const fullPath = path.join(uploadDir, entry.fileName);
-            const dir = path.dirname(fullPath);
-            fs.mkdirSync(dir, { recursive: true });
-
-            const writeStream = fs.createWriteStream(fullPath);
-            readStream.pipe(writeStream);
-
-            writeStream.on('close', () => {
-              zipfile.readEntry();
-            });
-
-            writeStream.on('error', (err) => {
-              console.error('Write stream error:', err);
-              zipfile.readEntry();
-            });
-          });
+          return;
         }
+
+        // Извлекаем путь без корневой папки
+        const parts = entry.fileName.split('/');
+        let relativePath;
+
+        // Если первый элемент — папка, а остальное — файл, например: "my-site/index.html"
+        if (parts.length > 1) {
+          // Берём всё, кроме первой папки
+          relativePath = path.join(...parts.slice(1));
+        } else {
+          // Просто файл в корне архива
+          relativePath = entry.fileName;
+        }
+
+        // Полный путь назначения
+        const fullPath = path.join(uploadDir, relativePath);
+        const dir = path.dirname(fullPath);
+
+        // Создаём папки при необходимости
+        fs.mkdirSync(dir, { recursive: true });
+
+        // Поток чтения
+        zipfile.openReadStream(entry, (err, readStream) => {
+          if (err) {
+            console.error('Error reading entry:', err);
+            return zipfile.readEntry();
+          }
+
+          const writeStream = fs.createWriteStream(fullPath);
+          readStream.pipe(writeStream);
+
+          writeStream.on('close', () => {
+            zipfile.readEntry();
+          });
+
+          writeStream.on('error', (err) => {
+            console.error('Write stream error:', err);
+            zipfile.readEntry();
+          });
+        });
       });
 
       zipfile.on('error', (err) => {

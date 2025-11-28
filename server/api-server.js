@@ -9,7 +9,7 @@ const multer = require('multer');
 const yauzl = require('yauzl');
 
 const PORT = process.env.LOCAL_API_PORT ? Number(process.env.LOCAL_API_PORT) : 4001;
-const BASE_PATH = process.env.PROJECT_DIR || process.cwd();
+const BASE_PATH = '/var/www/html/';//process.env.PROJECT_DIR || process.cwd();
 // --- Strict MySQL-only setup (no sqlite fallback) ---
 let mysql2;
 try {

@@ -6,7 +6,7 @@
     "local-api": "node server/api-server.js",
     "dev": "next dev -p 5500 --webpack",
     "build": "next build --webpack",
-    "start": "next start -p 5500 --webpack",
+    "start": "next start -p 5500",
     "lint": "eslint"
   },
   "dependencies": {

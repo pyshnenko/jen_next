@@ -211,7 +211,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const login = path.basename(String(req.body.login || 'anonymous')).replace(/\s+/g, '_');
     const projectName = path.basename(String(req.body.projectName || 'default')).replace(/\s+/g, '_');
 
-    const uploadDir = path.join(process.cwd(), 'project', login, projectName);
+    const uploadDir = path.join(BASE_PATH, 'project', login, projectName);
 
     // Убедимся, что папка существует
     fs.mkdirSync(uploadDir, { recursive: true });

@@ -90,7 +90,7 @@ export default function ProfilePage() {
       form.append("projectName", projectName);
       form.append("file", file);
 
-      const LOCAL_API = process.env.NEXT_PUBLIC_LOCAL_API_URL || "http://localhost:4001";
+      const LOCAL_API = process.env.NEXT_PUBLIC_LOCAL_API_URL || "";
       const res = await axios.post(`${LOCAL_API}/upload`, form, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent: AxiosProgressEvent) => {

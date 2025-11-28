@@ -5,8 +5,8 @@
   "scripts": {
     "local-api": "node server/api-server.js",
     "dev": "next dev -p 5500 --webpack",
-    "build": "next build",
-    "start": "next start -p 5500",
+    "build": "next build --webpack",
+    "start": "next start -p 5500 --webpack",
     "lint": "eslint"
   },
   "dependencies": {

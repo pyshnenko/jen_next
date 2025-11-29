@@ -22,6 +22,11 @@ const ubuntu = Ubuntu({
 export const metadata: Metadata = {
   title: "Code_Gap",
   description: "Школа программирования для детей",
+  icons: {
+    icon: '/jen/favicon.ico',
+    shortcut: '/jen/favicon.ico',
+    apple: '/jen/favicon.ico',
+  }
 };
 
 export default function RootLayout({

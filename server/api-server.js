@@ -9,7 +9,7 @@ const multer = require('multer');
 const yauzl = require('yauzl');
 
 const PORT = process.env.LOCAL_API_PORT ? Number(process.env.LOCAL_API_PORT) : 4001;
-const BASE_PATH = '/var/www/html/';//process.env.PROJECT_DIR || process.cwd();
+const BASE_PATH = '/var/www/html/';//process.env.PROJECT_DIR || process.cwd();//
 // --- Strict MySQL-only setup (no sqlite fallback) ---
 let mysql2;
 try {
@@ -173,13 +173,28 @@ async function start() {
       res.status(500).json({ error: String(err) });
     }
   });
+  app.put(`/access`, async (req, res) => {
+    const { login, acc } = req.body;
+    await User.update({
+      access: acc
+    }, {
+      where: { login: login }
+    })
+    res.status(200).json({})
+  });
 app.get('/projects/:login', async (req, res) => {
   try {
     const { login } = req.params;
+    const userPermissions = await User.findOne({
+      attributes: ['access'],
+      where: { login },
+      raw: true,
+    });
     const projects = await Project.findAll({
-      where: { user_login: login },
-      attributes: ['id', 'project_name', 'project_url', 'createdAt'],
+      where: userPermissions.access > 10 ? {} : { user_login: login },
+      attributes: ['id', 'project_name', 'project_url', 'createdAt', 'user_login'],
       order: [['createdAt', 'DESC']],
+      raw: true,
     });
     res.json(projects);
   } catch (err) {
@@ -193,7 +208,6 @@ app.get('/projects/:login', async (req, res) => {
       const created = await User.create(userData);
       res.status(201).json(created);
     } catch (err) {
-      console.log(err);
       res.status(500).json({ error: String(err) });
     }
   });
@@ -314,6 +328,60 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   } catch (err) {
     console.error('Upload error:', err);
     res.status(500).json({ error: String(err) });
+  }
+});
+
+// New DELETE /project -> deletes DB record and removes physical folder
+app.delete('/project', async (req, res) => {
+  try {
+    const { login: rawLogin, projectName: rawProjectName } = req.body || {};
+
+    if (!rawLogin || !rawProjectName) {
+      return res.status(400).json({ error: 'Missing login or projectName' });
+    }
+
+    // sanitize inputs to avoid traversal
+    const login = path.basename(String(rawLogin)).replace(/\s+/g, '_');
+    const projectName = path.basename(String(rawProjectName)).replace(/\s+/g, '_');
+
+    // find project owned by the user
+    const project = await Project.findOne({
+      where: { user_login: login, project_name: projectName },
+    });
+
+    if (!project) {
+      // 403 — forbidden / not found (as requested)
+      return res.status(403).json({ error: 'Project not found or forbidden' });
+    }
+
+    // delete DB record
+    const deletedRows = await Project.destroy({
+      where: { id: project.id },
+    });
+
+    if (!deletedRows) {
+      console.error('Failed to delete project from DB', project.id);
+      return res.status(500).json({ error: 'Failed to delete project in database' });
+    }
+
+    // physically remove folder
+    const uploadDir = path.join(BASE_PATH, 'project', login, projectName);
+
+    try {
+      // remove recursively (Node 14+ supports fs.promises.rm)
+      if (fs.existsSync(uploadDir)) {
+        await fs.promises.rm(uploadDir, { recursive: true, force: true });
+      }
+    } catch (err) {
+      // DB already deleted — log the issue and respond 500
+      console.error('Failed to remove project directory:', uploadDir, err);
+      return res.status(500).json({ error: 'Project deleted from DB but failed to remove directory', details: String(err) });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('Delete /project error:', err);
+    return res.status(500).json({ error: String(err) });
   }
 });
 

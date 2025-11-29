@@ -3,6 +3,13 @@
     display: none;
   }
   
+  .mobile {
+    display: block;
+  }
+  .desctop {
+    display: none;
+  }
+  
 
 /* === Фон — через fixed-див === */
     body::before {

@@ -28,15 +28,20 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
-
     const ok = await bcrypt.compare(pass, user.hash);
     if (!ok) return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
 
-    const token = jwt.sign({ Id: user.Id, login: user.login }, JWT_SECRET, { expiresIn: `${MAX_AGE}s` });
+    const token = jwt.sign({ 
+      Id: user.Id, 
+      login: user.login, 
+      access: user.access, 
+      name: user.name, 
+      lastname: user.lastname 
+    }, JWT_SECRET, { expiresIn: `${MAX_AGE}s` });
 
     // возвращаем минимальную информацию о пользователе
     return NextResponse.json(
-      { success: true, user: { Id: user.Id, login: user.login, name: user.name, lastname: user.lastname } },
+      { success: true, user: user},//{ Id: user.Id, login: user.login, name: user.name, lastname: user.lastname } },
       { status: 200, headers: { "Set-Cookie": makeCookie(token) } }
     );
   } catch (err: any) {
@@ -61,7 +66,7 @@ export async function GET(req: Request) {
     }
 
     // Return minimal user info (you can enrich by querying LOCAL_API if needed)
-    return NextResponse.json({ authenticated: true, user: { Id: payload.Id, login: payload.login } }, { status: 200 });
+    return NextResponse.json({ authenticated: true, user: payload }, { status: 200 });
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error("Auth GET error:", err);

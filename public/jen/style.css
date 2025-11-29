@@ -5,6 +5,9 @@ body {
   min-height: 100vh;
   position: relative;
 }
+a {
+  text-decoration: none;
+}
 #mobile_logo {
   display: none;
 }
@@ -27,7 +30,7 @@ body::before {
   /*background: linear-gradient(to bottom, white, #ceeeb0);*/
   background: linear-gradient(to bottom, white, #497542);
   z-index: -2;
-  pointer-events: none;
+  /*pointer-events: none;*/
   will-change: transform;
   transform: translateZ(0);
 }
@@ -108,7 +111,7 @@ body::before {
   z-index: 2;
   transform: translateY(0);
   transition: transform 0.1s ease-out, opacity 0.1s ease-out, backdrop-filter 0.1s ease-out;
-  pointer-events: none;
+  /*pointer-events: none;*/
   opacity: 1;
   backdrop-filter: blur(0px);
 }
@@ -231,7 +234,7 @@ body::before {
 .page1 .textBlock {  
   display: flex;
   font-family: "Ubuntu", sans-serif;
-  color: #9af8e1;
+  color: #8182eb;
   font-size: 40px;
   line-height: 1.5;
 
@@ -734,4 +737,10 @@ h6 {
 
 .floating-call-button {
   display: none;
+}
+.mobile {
+  display: none;
+}
+.desctop {
+  display: block;
 }

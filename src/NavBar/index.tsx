@@ -1,7 +1,5 @@
 import React from 'react';
 import Image from 'next/image';
-import '@/public/jen/style.css';
-import '@/public/jen/mobStyle.css';
 
 export default function NavBar():React.ReactNode {
     return (
@@ -16,6 +14,7 @@ export default function NavBar():React.ReactNode {
                 <li><p id="courses">Курсы</p></li>
                 <li><p id="team">Команда</p></li>
                 <li><p id="contact">Контакты</p></li>
+                <li><a href='/lk'><p>Кабинет</p></a></li>
             </ul>
             </div>
             <a href="tel:+79957578746"><button className="phoneButton">

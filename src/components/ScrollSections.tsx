@@ -63,7 +63,6 @@ export default function ScrollSections() {
                     top: 0,
                     height: '100vh',
                     width: '100%',
-                    overflow: 'hidden',
                     display: 'block',
                 }}
             >
@@ -89,7 +88,7 @@ export default function ScrollSections() {
                 </div>
             </div>
 
-            <div style={{ height: `${components.length * 100}vh` }} />
+            <div style={{ height: `${components.length * 110}vh` }} />
         </>
     );
 }

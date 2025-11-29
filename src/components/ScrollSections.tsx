@@ -80,6 +80,7 @@ export default function ScrollSections() {
                                 opacity: opacities[i],
                                 pointerEvents: opacities[i] > 0 ? 'auto' : 'none',
                                 transform: opacities[i] > 0 ? 'translateY(0)' : 'translateY(10px)',
+                                width: '100%',
                             }}
                         >
                             <P show={opacities[i] === 1} />

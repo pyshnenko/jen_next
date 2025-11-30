@@ -217,6 +217,7 @@ app.get('/projects/:login', async (req, res) => {
   // - projectName (string)
   // - file (file)
 app.post('/upload', upload.single('file'), async (req, res) => {
+  console.log('upload')
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });

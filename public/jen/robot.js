@@ -54,7 +54,7 @@ function init() {
   // === ЗАГРУЗКА МОДЕЛИ ===
   const loader = new GLTFLoader();
   loader.load(
-    'https://testigor.ru/library/threejs/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
+    '/library/threejs/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
     (gltf) => {
       model = gltf.scene;
       model.position.set(-40, -10, 0);

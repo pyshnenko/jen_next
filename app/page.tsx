@@ -17,8 +17,8 @@ export default function Home() {
         dangerouslySetInnerHTML={{
           __html: `{
             "imports": {
-              "three": "https://testigor.ru/library/threejs/build/three.module.js",
-              "three/addons/": "https://testigor.ru/library/threejs/examples/jsm/"
+              "three": "/library/threejs/build/three.module.js",
+              "three/addons/": "/library/threejs/examples/jsm/"
             }
           }`
         }}

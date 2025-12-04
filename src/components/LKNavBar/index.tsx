@@ -15,9 +15,18 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/src/hooks/useAuth';
 
-const pages = [{title:'Проекты' ,ref:'/lk/project'}, {title:'Задания', ref:'/lk/profile'}, {title:'Уроки',
-  ref:'/lk/profile'}
+const pages = [
+  {title:'Проекты' ,ref:'/lk/project'}, 
+  {title:'Задания', ref:'/lk/profile'}, 
+  {title:'Уроки', ref:'/lk/profile'}
+];
+const pagesAdmin = [
+  {title:'Проекты', ref:'/lk/project'}, 
+  {title:'Задания', ref:'/lk/profile'}, 
+  {title:'Уроки', ref:'/lk/profile'},
+  {title:'Пользователи', ref:'/lk/admin'}
 ];
 const settings = ['Мой профиль', 'Настройки', "Обратная связь", "Выход"];
 
@@ -25,6 +34,7 @@ export default function LKNavBar():React.JSX.Element {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const router = useRouter();
+  const {user, loading, logout} = useAuth();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -42,11 +52,18 @@ export default function LKNavBar():React.JSX.Element {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = (val: string) => {
+    if (val === 'Выход') {
+      logout()
+    } else if (val === 'Мой профиль') {
+      router.push('/lk/profile')
+    } else if (val === 'Настройки') {
+      router.push('/lk/settings')
+    }
     setAnchorElUser(null);
   };
     return (
-        <AppBar className='navBar' position="static">
+        <AppBar className='navBar' position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Image width={40} height={40} src="/jen/logo.png" alt="Logo" />
@@ -95,7 +112,7 @@ export default function LKNavBar():React.JSX.Element {
               onClose={handleCloseNavMenu2}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {(user?.access===100 ? pagesAdmin : pages).map((page) => (
                 <MenuItem key={page.title} onClick={()=>handleCloseNavMenu(page.ref)}>
                   <Typography sx={{ textAlign: 'center' }}>{page.title}</Typography>
                 </MenuItem>
@@ -122,7 +139,7 @@ export default function LKNavBar():React.JSX.Element {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'center', gap: 24 } }}>
-            {pages.map((page) => (
+            {(user?.access===100 ? pagesAdmin : pages).map((page) => (
               <Button
                 key={page.title}
                 onClick={()=>handleCloseNavMenu(page.ref)}
@@ -152,10 +169,10 @@ export default function LKNavBar():React.JSX.Element {
                 horizontal: 'right',
               }}
               open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+              onClose={()=>handleCloseUserMenu('')}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={()=>handleCloseUserMenu(setting)}>
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}

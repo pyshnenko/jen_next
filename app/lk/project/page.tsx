@@ -3,10 +3,6 @@
 import React, { useEffect, useState } from "react";
 import axios, { type AxiosProgressEvent } from "axios";
 import { useRouter } from "next/navigation";
-import InputLabel from '@mui/material/InputLabel';
-//import LKNavBar from "@/src/components/LKNavBar";
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import {
   Box,
   Button,
@@ -17,14 +13,13 @@ import {
   ListItem,
   ListItemText,
   Link,
-  Divider,
   IconButton,
   Paper,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import type { User } from "@/src/types/frontGlobalTypes";
 import { setUser } from "@/src/store/userDataStore";
 import { useAppSelector, useAppDispatch } from "@/src/store/hooks";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Project {
   id: number,
@@ -34,15 +29,10 @@ interface Project {
   user_login: string
 }
 
-const UserLevel = new Map(
-  [[1, 'Абитуриент'], [5, 'Студент'], [10, 'Преподаватель'], [20, 'Администратор'], [100, 'Тоха']]
-)
-
 export default function ProfilePage() {
 
   const user = useAppSelector((state) => state.user);
 
-  const [usersList, setUsersList] = useState<User[]>([]);
   const [projectName, setProjectName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string>("");
@@ -55,13 +45,17 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
 
 useEffect(() => {
-  if (user?.Id !== -1) return; // ← Если пользователь уже загружен — не делаем запрос
+  if (user?.Id !== -1) {
+    pageFill(user);
+    return; // ← Если пользователь уже загружен — не делаем запрос
+  }
 
   const loadUser = async () => {
     try {
       const res = await axios.get("/api/auth", { withCredentials: true });
       if (res.status === 200 && res.data?.authenticated) {
         dispatch(setUser(res.data.user));
+        pageFill(res.data.user);
       } else {
         router.push("/lk");
       }
@@ -72,6 +66,13 @@ useEffect(() => {
 
   loadUser();
 }, [user?.Id, dispatch, router]);
+
+  const pageFill = (user:User) => {
+    fetchProjects(user.login);
+    switch (user.access) {
+      default: fetchProjects(user.login);
+    }
+  }
 
   const fetchProjects = async (login: string) => {
     try {
@@ -95,15 +96,6 @@ useEffect(() => {
       setFile(selected);
     }
   };
-
-  const updUserList = async () => {
-    try {
-      const usersRes = await axios.get("/api/users");
-      setUsersList(usersRes.data || []);
-    } catch (err) {
-      console.log("Failed to load users", err);
-    }
-  }
 
   const upload = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -156,13 +148,6 @@ useEffect(() => {
     }
   };
 
-  const updAccess = async (event: SelectChangeEvent<number>, login: string) => {
-    try {
-      await axios.put('/api/updPermissions', {login, acc: event.target.value})
-      updUserList();
-    } catch (err) {}
-  }
-
   const deleteProject = async (proj: Project) => {
     if (!user) return;
     if (!confirm(`Удалить проект "${proj.project_name}"?`)) return;
@@ -187,7 +172,7 @@ useEffect(() => {
       
 
       {/* Форма загрузки ZIP */}
-      <Paper elevation={3} component="form" onSubmit={upload} sx={{ margin: 8, padding: 2,mt: 3, display: "flex", flexDirection: "column", gap: 2, maxWidth: 520 }}>
+      <Paper elevation={3} component="form" onSubmit={upload} sx={{ margin: 3, padding: 2,mt: 8, display: "flex", flexDirection: "column", gap: 2, maxWidth: 520 }}>
         <Typography variant="h6">Загрузить проект</Typography>
         <TextField
           value={projectName}
@@ -316,45 +301,6 @@ useEffect(() => {
             ))}
           </List>
       </Paper>}
-      {usersList.length > 0 && <Paper elevation={3} sx={{
-        margin: 8,
-        padding: 2,
-      }}>
-        <Typography variant="h6">Список пользователей</Typography>
-        {usersList.map((user) => {return (          
-              <ListItem
-                key={user.Id}
-                divider
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    //onClick={() => deleteProject(proj)}
-                    //disabled={deletingProjectId === proj.id}
-                    title="Удалить проект"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              margin: 1,
-              padding: 1,
-            }}>
-              <Typography>{user.login} ({UserLevel.get(user.access)})</Typography>
-              <Select
-                value={user.access}
-                onChange={(evt)=>{updAccess(evt, user.login)}}
-              >
-                {[1,5,10,20,100].map((item) => <MenuItem value={item}>{UserLevel.get(item)}</MenuItem>)}
-              </Select>
-              <Typography>{user.name} {user.lastname}</Typography>
-            </Box>
-          </ListItem>
-        )})}
-      </Paper>} 
     </Box>
   );
 }

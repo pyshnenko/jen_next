@@ -12,17 +12,8 @@ import {
   Tab,
   Paper,
 } from "@mui/material";
-
-interface User {
-  Id: number;
-  login: string;
-  hash: string;
-  name: string;
-  lastname: string;
-  access: number;
-  folder: string;
-  project: string;
-}
+import { useAppDispatch } from "@/src/store/hooks";
+import { setUser } from "@/src/store/userDataStore";
 
 // Компонент для панели вкладки
 interface TabPanelProps {
@@ -49,35 +40,29 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function LK(): React.ReactElement {
-  const [users, setUsers] = useState<User[]>([]);
   const [register, setRegister] = useState({ login: "", pass: "", name: "", lastname: "" });
   const [loginForm, setLoginForm] = useState({ login: "", pass: "" });
   const [message, setMessage] = useState<string>("");
   const [value, setValue] = useState(0);
   const router = useRouter();
+  
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async () => {
       try {
         const res = await axios.get("/api/auth", { withCredentials: true });
         if (res.status === 200 && res.data?.authenticated) {
+          console.log(res.data)
+          dispatch(setUser(res.data.user));
           router.push("/lk/profile");
         }
       } catch (e) {
+        console.log(e)
         // not authenticated
       }
     })();
-    refreshUsers();
   }, []);
-
-  const refreshUsers = async () => {
-    try {
-      const res = await axios.get("/api/users");
-      setUsers(res.data || []);
-    } catch (err) {
-      // ignore
-    }
-  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +71,6 @@ export default function LK(): React.ReactElement {
       const res = await axios.post("/api/users", register);
       setMessage("Регистрация успешна");
       setRegister({ login: "", pass: "", name: "", lastname: "" });
-      await refreshUsers();
     } catch (err: any) {
       setMessage(err?.response?.data?.message || "Ошибка регистрации");
     }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Ubuntu } from "next/font/google";
+import { Providers } from "./provider";
 import '@/public/jen/style.css';
 import '@/public/jen/mobStyle.css';
 
@@ -39,7 +40,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${ubuntu.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

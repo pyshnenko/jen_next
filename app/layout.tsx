@@ -39,6 +39,7 @@ export default function RootLayout({
     <html lang="ru">
       <body
         className={`${geistSans.variable} ${ubuntu.variable} ${geistMono.variable} antialiased`}
+        style={{minHeight: 'auto'}}
       >
         <Providers>{children}</Providers>
       </body>

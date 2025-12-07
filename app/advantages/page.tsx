@@ -4,6 +4,8 @@ import { Box, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ClientAnimations } from './ClientAnimations';
+import P7 from '@/src/pageCards/P7';
+import LinkButton from '@/src/components/LinkButton';
 
 export default function Advantages() {
   const features = [
@@ -138,14 +140,17 @@ export default function Advantages() {
           </Typography>
         </Link>
       </Box>
-
+      <Box sx={{position: 'absolute', top: 0, right: 0, width: 400, height: 175}}>
+        <Image fill alt='Microsoft' src={'/jen/microsoft-advanced-e.png.webp'} />
+      </Box>
+        <LinkButton />
       <Box sx={{ backgroundColor: '#fffa', textAlign: 'center', fontSize: '24px' }}>
         <Box p={8}>
           <Typography sx={{ fontSize: 'xx-large' }} variant="h3">
             Как мне выбрать курсы программирования?
           </Typography>
           <p style={{ textAlign: 'center' }}>
-            Это действительно важный вопрос для ответственного родителя. . На текущий момент существуют множество как онлайн, так и офлайн школ для изучения программирования детьми. Если вы уже изучали этот момент, то могли заметить, что отличий действительно между ними мало. Однако наша академия предлагает такие преимущества, которых нет у других школ. <br/>А именно:
+            Это действительно важный вопрос для ответственного родителя. На текущий момент существуют множество как онлайн, так и офлайн школ для изучения программирования детьми. Если вы уже изучали этот момент, то могли заметить, что отличий действительно между ними мало. Однако наша академия предлагает такие преимущества, которых нет у других школ. <br/>А именно:
           </p>
         </Box>
 
@@ -169,13 +174,7 @@ export default function Advantages() {
                 component="span"
                 sx={{ fontSize: 'x-large', pr: 1 }}
               >
-                {feature.text.split(' ').slice(0, -1).join(' ')}
-              </Typography>
-              <Typography
-                component="span"
-                sx={{ fontSize: 'x-large', color: 'green' }}
-              >
-                {feature.text.split(' ').slice(-1)}
+                {feature.text}
               </Typography>
               <p style={{ textAlign: 'left', marginTop: '8px' }}>
                 {feature.description}
@@ -192,7 +191,8 @@ export default function Advantages() {
           </Box>
         ))}
       </Box>
-
+        <P7 show={false} closeButton={true} autoOpenDelay={30000} />
+        <P7 show={true} noCard={true} />
       {/* Подключаем анимации — минимальный клиентский компонент */}
       <ClientAnimations />
     </Box>

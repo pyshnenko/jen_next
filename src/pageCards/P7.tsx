@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
+import { IconButton, Box } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
 interface Props {
   show: boolean;
+  closeButton?: boolean;
+  autoOpenDelay?: number;
+  noCard?: boolean;
 }
 
-export default function P7({ show }: Props): React.ReactElement {
+export default function P7({ show, closeButton, autoOpenDelay, noCard }: Props): React.ReactElement {
+  const [innerShow, setInnerShow] = useState<boolean>(show) // [1
   const [phone, setPhone] = useState<string>('+7');
   const [city, setCity] = useState<string>('');
+
+  useEffect(() => {
+    // Устанавливаем таймер на открытие
+    const timer = setTimeout(() => {
+      setInnerShow(autoOpenDelay ? true : show);
+    }, autoOpenDelay);
+
+    // Очищаем таймер, если компонент размонтирован
+    return () => clearTimeout(timer);
+  }, [autoOpenDelay]);
+  
+  useEffect(() => {
+    if (!autoOpenDelay) setInnerShow(show); // [1]
+  }, [show]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.currentTarget.value.replace(/\D/g, '');
@@ -39,9 +60,19 @@ export default function P7({ show }: Props): React.ReactElement {
   };
 
   return (
-    <div id="page7" className={`page2${show ? ' show' : ''}`}>
-      <div className="card column">
-        <h3>Запишись на первое бесплатное занятие</h3>
+    <div id="page7" className={`${noCard ? '' : 'page2'}${innerShow ? ' show' : ''}`} style={noCard?{
+      height: '100dvh',
+      alignItems: 'center',
+      backgroundImage: 'url(/jen/1.jpg)'
+      }:{}}>
+        {noCard&&<Box sx={{position: 'absolute', width: '100%', height: '100dvh', 
+        backgroundImage: '-webkit-linear-gradient(top, rgba(74, 173, 28, 0.4), rgba(26, 26, 26, 0.7))'}}></Box>}
+      {closeButton && <IconButton style={{ position: 'absolute', top: 0, right: 0 }} onClick={() => setInnerShow(false)}>
+        <CloseIcon />
+      </IconButton>}
+      <div className="card column" style={{alignItems: 'center'}}>
+        <h3 style={noCard?{color: 'white', 
+              textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'}:{}}>Запишись на первое бесплатное занятие</h3>
         <form id="studentForm" className="form" method="post">
           <input
             type="tel"

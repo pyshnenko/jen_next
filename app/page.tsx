@@ -4,10 +4,12 @@ import Script from "next/script";
 import { Box } from "@mui/material";
 import ScrollSections from "@/src/components/ScrollSections";
 import NavBar from "@/src/NavBar";
+import LinkButton from "@/src/components/LinkButton";
 
 export default function Home() {
   return (
     <Box>      
+      <LinkButton />
       <NavBar />
       {/* importmap must be before any module that uses it */}
       <Script

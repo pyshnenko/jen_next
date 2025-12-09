@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 interface Props {
     show: boolean;
@@ -41,7 +42,7 @@ export default function P2({show}:Props):React.ReactNode {
           </div>
         </div>
       </div>
-      <button>Подробнее</button>
+      <Link href={'/advantages'} style={{width: '100%'}}><button style={{width: '100%'}}>Подробнее</button></Link>
     </div>
   </div>
     )

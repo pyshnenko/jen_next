@@ -10,7 +10,7 @@ export default function P2({show}:Props):React.ReactNode {
     <h3>Наши курсы</h3>
     <div className="card">
       <div className="carousel">
-        <div className="carousel-item">
+        <div className="carousel-item" onClick={()=>window.location.href='/minecraft'}>
           <img src="./jen/minecraft.png" alt="Курс"/>
           <h5>Программирование в Minecraft</h5>
         </div>

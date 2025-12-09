@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function NavBar():React.ReactNode {
     return (
@@ -8,7 +9,7 @@ export default function NavBar():React.ReactNode {
                 display: 'inline-flex',
                 alignItems: 'center'
             }}>
-            <Image width={60} height={60} src="/jen/logo.png" alt="Логотип" className="logo" id="topLogo"/>
+            <Link href='/'><Image width={60} height={60} src="/jen/logo.png" alt="Логотип" className="logo" id="topLogo"/></Link>
             <ul className="nav-links">
                 <li><p id="about">О нас</p></li>
                 <li><p id="courses">Курсы</p></li>

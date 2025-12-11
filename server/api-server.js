@@ -95,7 +95,7 @@ const storage = multer.diskStorage({
 });
 
 // 🔐 Фильтрация: только безопасные расширения
-const ALLOWED_EXTS = ['.html', '.htm', '.css', '.js', '.json', '.txt', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.woff', '.woff2', '.ttf', '.eot'];
+const ALLOWED_EXTS = ['.ip'];
 
 function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();

@@ -180,70 +180,75 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   console.log(`Extracting ${req.file.path} → ${extractPath}`);
 
   try {
-  await new Promise((resolve, reject) => {
-    const readStream = fs.createReadStream(req.file.path);
-    const extractor = unzipper.Extract({ path: extractPath });
-
-    // Ловим событие 'entry' — каждый файл/папка из архива
-    extractor.on('entry', (entry) => {
-      // Получаем путь из архива: например, "my-project/index.html"
-      let relativePath = entry.path.replace(/\\/g, '/'); // На случай Windows-путей
-
-      // Разделяем путь и убираем первую часть (имя папки архива)
-      const parts = relativePath.split('/').filter(Boolean);
-      if (parts.length === 0) return entry.autodrain(); // пустой путь
-
-      // Оставляем всё, кроме первой директории
-      const finalPath = parts.slice(1).join('/');
-      if (!finalPath) {
-        // Если путь стал пустым — это сама папка типа "my-project/", пропускаем
-        return entry.autodrain();
-      }
-
-      // Меняем путь записи
-      entry.path = path.join(extractPath, finalPath);
-
-      // Создаём папку, если нужно
-      const dir = path.dirname(entry.path);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
-      // Пишем файл
-      entry.pipe(fs.createWriteStream(entry.path));
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(req.file.path)
+        .pipe(unzipper.Extract({ path: extractPath }))
+        .on('close', resolve)
+        .on('error', err => {
+          console.error('Unzip error:', err);
+          reject(err);
+        });
     });
 
-    extractor.on('close', resolve);
-    extractor.on('error', reject);
+    fs.unlinkSync(req.file.path);
 
-    readStream.pipe(extractor);
-  });
+    // ✅ Проверка: есть ли index.html?
+    function findIndexHtml(dir) {
+  try {
+    const stack = [dir];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const files = fs.readdirSync(current);
 
-  fs.unlinkSync(req.file.path); // Удаляем .zip
+      for (const file of files) {
+        const fullPath = path.join(current, file);
+        const stat = fs.statSync(fullPath);
 
-  // Проверяем наличие index.html в корне extractPath
-  const indexPath = path.join(extractPath, 'index.html');
-  const hasIndex = fs.existsSync(indexPath);
-  const projectUrl = hasIndex
-    ? `/project/${login}/${projectName}/index.html`
-    : `/project/${login}/${projectName}/`;
-
-  await Project.upsert({
-    project_access: 1,
-    project_name: projectName,
-    project_url: projectUrl,
-    user_login: login,
-  });
-
-  res.status(201).json({
-    message: 'OK',
-    project: { project_name: projectName, project_url: projectUrl, user_login: login }
-  });
-
-} catch (err) {
-  console.error('Extract failed:', err);
-  res.status(500).json({ error: 'Extract failed', details: err.message });
+        if (stat.isDirectory()) {
+          stack.push(fullPath);
+        } else if (file.toLowerCase() === 'index.html') {
+          return fullPath; // возвращаем полный путь
+        }
+      }
+    }
+    return null;
+  } catch (err) {
+    console.error('Error searching index.html:', err);
+    return null;
+  }
 }
+
+// Поиск
+const foundIndexPath = findIndexHtml(extractPath);
+const hasIndex = !!foundIndexPath;
+
+// Определяем URL: если index.html в подпапке — URL должен вести туда
+let projectUrl = `/project/${login}/${projectName}/`;
+
+if (hasIndex) {
+  // Получаем относительный путь от extractPath до index.html
+  const relativePath = path.relative(extractPath, foundIndexPath);
+  // Формируем URL: заменяем \ на /, убираем index.html
+  const urlPath = path.dirname(relativePath).split(path.sep).join('/');
+  projectUrl = `/project/${login}/${projectName}/${urlPath}/index.html`;
+}
+
+    await Project.upsert({
+      project_access: 1,
+      project_name: projectName,
+      project_url: projectUrl,
+      user_login: login,
+    });
+
+    res.status(201).json({
+      message: 'OK',
+      project: { project_name: projectName, project_url: projectUrl, user_login: login }
+    });
+
+  } catch (err) {
+    console.error('Extract failed:', err);
+    res.status(500).json({ error: 'Extract failed', details: err.message });
+  }
 });
 
 // Удаление

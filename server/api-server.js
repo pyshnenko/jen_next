@@ -95,7 +95,7 @@ const storage = multer.diskStorage({
 });
 
 // 🔐 Фильтрация: только безопасные расширения
-const ALLOWED_EXTS = ['.ip'];
+const ALLOWED_EXTS = ['.zip'];
 
 function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();

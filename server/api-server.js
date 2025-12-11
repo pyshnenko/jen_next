@@ -73,7 +73,8 @@ const User = sequelize.define('User', {
 // --- Санитизация ---
 function sanitize(input) {
   return String(input)
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/[^a-zA-Z0-9._\-а-яА-ЯёЁ]/g, '_')  // разрешаем кириллицу
+    .replace(/_{2,}/g, '_')
     .substring(0, 50);
 }
 

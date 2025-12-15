@@ -45,7 +45,7 @@ export default function Admin(): React.JSX.Element {
     }
     return (
         <Paper elevation={3} sx={{
-        margin: 8,
+        margin: {xs: 2, sm: 8},
         padding: 2,
       }}>
         <Typography variant="h6">Список пользователей</Typography>
@@ -65,18 +65,22 @@ export default function Admin(): React.JSX.Element {
               >
             <Box sx={{
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: {xs: 'column', sm:'row'},
+              gap: 2,
+              alignItems: 'center',
+              //flexWrap: 'wrap',
               margin: 1,
-              padding: 1,
+              padding: 0,
             }}>
-              <Typography>{user.login} ({UserLevel.get(user.access)})</Typography>
+              <Typography width={'250px'}>{user.login} ({UserLevel.get(user.access)})</Typography>
               <Select
+                sx={{minWidth: '200px', marginRight:4}}
                 value={user.access}
                 onChange={(evt)=>{updAccess(evt, user.login)}}
               >
                 {[1,5,10,20,100].map((item) => <MenuItem value={item}>{UserLevel.get(item)}</MenuItem>)}
               </Select>
-              <Typography>{user.name} {user.lastname}</Typography>
+              <Typography width={'250px'}>{user.name} {user.lastname}</Typography>
             </Box>
           </ListItem>
         )})}

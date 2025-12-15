@@ -1,6 +1,7 @@
 "use client"
 import React from 'react';
 import AppBar from '@mui/material/AppBar';
+import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -56,6 +57,8 @@ export default function LKNavBar():React.JSX.Element {
       logout()
     } else if (val === 'Мой профиль') {
       router.push('/lk/profile')
+    } else if (val === 'Обратная связь') {
+      router.push('/lk/feedback')
     } else if (val === 'Настройки') {
       router.push('/lk/settings')
     }
@@ -116,7 +119,9 @@ export default function LKNavBar():React.JSX.Element {
                 Code_Gap
               </Typography>
             </Box>
-            <Image width={40} height={40} src="/jen/logo.png" alt="Logo" />
+            <Link href='/'>
+              <Image width={40} height={40} src="/jen/logo.png" alt="Logo" />
+            </Link>
             <Typography
               variant="h5"
               noWrap

@@ -63,7 +63,10 @@ export default function P7({ show, closeButton, autoOpenDelay, noCard }: Props):
     <div id="page7" className={`${noCard ? '' : 'page2'}${innerShow ? ' show' : ''}`} style={noCard?{
       height: '100dvh',
       alignItems: 'center',
-      backgroundImage: 'url(/jen/1.jpg)'
+      backgroundImage: 'url(/jen/1.jpg)',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
       }:{}}>
         {noCard&&<Box sx={{position: 'absolute', width: '100%', height: '100dvh', 
         backgroundImage: '-webkit-linear-gradient(top, rgba(74, 173, 28, 0.4), rgba(26, 26, 26, 0.7))'}}></Box>}

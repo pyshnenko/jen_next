@@ -14,11 +14,11 @@ export default function P2({show}:Props):React.ReactNode {
           <img src="./jen/minecraft.png" alt="Курс"/>
           <h5>Программирование в Minecraft</h5>
         </div>
-        <div className="carousel-item">
+        <div className="carousel-item" onClick={()=>window.location.href='/roblox'}>
           <img src="./jen/roblox.png" alt="Курс"/>
           <h5>Создание игр в Roblox</h5>
         </div>
-        <div className="carousel-item">
+        <div className="carousel-item" onClick={()=>window.location.href='/unity'}>
           <img src="./jen/unity.png" alt="Курс"/>
           <h5>Разработка на Unity</h5>
         </div>

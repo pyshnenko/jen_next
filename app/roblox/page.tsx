@@ -12,7 +12,7 @@ export default function Minecraft(): React.ReactNode {
             <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: '#fffa', pt: '120px'}}>
                 <Box sx={{display: 'inline-flex'}}>
                     <Typography p={8} sx={{fontSize: '36px', padding: 4}} variant="h1">Курс "Создание игр в Roblox Studio"</Typography>
-                    <Image alt="minr" src='/jen/robloxTop.png' width={100} height={100} />
+                    <Image alt="minr" src='/jen/RobloxTop.png' width={100} height={100} />
                 </Box>
                 <Typography p={8} sx={{fontSize: '24px', textAlign:'center'}}>Если вы когда-нибудь задумывались о разработке игр, но опыта программирования у вас нет, то курс "Создание игр в Roblox Studio" именно для вас!</Typography>                
                 <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', padding: 8}}>

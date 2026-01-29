@@ -10,6 +10,27 @@ const PORT = Number(process.env.PORT) || 55000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.post('/api/feedback', async (req, res) => {
+  const {user, answer, date} = req.body;
+
+  if (!user || !answer || !date) {
+    return res.status(400).json({
+      error: 'Не все поля заполнены'
+    })
+  }
+  const realDate = new Date(date);
+
+  const message = `Вопрос от ${realDate.toLocaleString('ru')} 
+  ${user.lastname} ${user.name} (${user.login} с уровнем ${user.access}) спрашивает:
+
+  ${answer}
+  `
+  bot.telegram.sendMessage(Number(process.env.TELEGRAM_CHAT_ID), message).catch(console.error);
+  res.status(201).json({
+    message: 'Ответ успешно отправлен',
+  })
+});
+
 app.post('/api/newStudent', (req, res) => {
   console.log('Получены данные:', req.body);
 

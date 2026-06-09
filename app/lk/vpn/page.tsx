@@ -60,7 +60,7 @@ export default function VpnManager() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4, paddingTop: '80px' }}>
       <Typography variant="h4" gutterBottom>Управление VPN</Typography>
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}

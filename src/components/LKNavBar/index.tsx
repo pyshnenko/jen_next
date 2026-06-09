@@ -26,7 +26,8 @@ const pagesAdmin = [
   {title:'Проекты', ref:'/lk/project'}, 
   {title:'Задания', ref:'/lk/profile'}, 
   {title:'Уроки', ref:'/lk/profile'},
-  {title:'Пользователи', ref:'/lk/admin'}
+  {title:'Пользователи', ref:'/lk/admin'},
+  {title:'VPN', ref:'/lk/vpn'}
 ];
 const settings = ['Мой профиль', 'Настройки', "Обратная связь", "Выход"];
 

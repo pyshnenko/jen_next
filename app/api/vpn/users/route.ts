@@ -52,6 +52,7 @@ export async function POST(req: Request) {
     await execAsync(`printf "%s\n%s\n" "${password}" "${password}" | ocpasswd -c ${PASSWD_FILE} ${username}`);
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error:', error);
     return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }

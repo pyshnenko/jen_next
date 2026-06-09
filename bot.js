@@ -1,6 +1,9 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { Telegraf } from 'telegraf';
+import { SocksProxyAgent } from 'socks-proxy-agent';
+const proxyUrl = 'socks5://uw4z2dwd:dvcyhp1i30u2@localhost:35437';
+const agent = new SocksProxyAgent(proxyUrl);
 import express from 'express';
 const app = express();
 const PORT = Number(process.env.PORT) || 55000;
@@ -57,7 +60,11 @@ if (!BOT_TOKEN) {
   process.exit(1);
 }
 
-const bot = new Telegraf(BOT_TOKEN);
+const bot = new Telegraf(BOT_TOKEN,{
+  telegram: {
+    agent: agent // Все запросы к API Telegram пойдут через этот сокет
+  }
+});
 
 // Приветствие
 bot.start((ctx) => {

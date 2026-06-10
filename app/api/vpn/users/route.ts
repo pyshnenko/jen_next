@@ -76,6 +76,10 @@ export async function POST(req: Request) {
   try {
     // Используем sudo и ocpasswd
     await execAsync(`printf "%s\n%s\n" "${password}" "${password}" | sudo ocpasswd -c ${PASSWD_FILE} ${username}`);
+    if (!isWindows) {
+        await execAsync(`sudo chown ${REMOTE_USER}:${REMOTE_USER} ${PASSWD_FILE}`);
+        await execAsync(`sudo chmod 644 ${PASSWD_FILE}`); 
+    }
     await syncToNodes();
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -96,6 +100,10 @@ export async function DELETE(req: Request) {
 
   try {
     await execAsync(`sudo ocpasswd -c ${PASSWD_FILE} -d ${username}`);
+    if (!isWindows) {
+        await execAsync(`sudo chown ${REMOTE_USER}:${REMOTE_USER} ${PASSWD_FILE}`);
+        await execAsync(`sudo chmod 644 ${PASSWD_FILE}`); 
+    }
     await syncToNodes();
     return NextResponse.json({ success: true });
   } catch (error) {

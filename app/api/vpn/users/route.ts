@@ -7,15 +7,10 @@ import { VpnUser, VpnFormData } from '@/src/types/vpn';
 const execAsync = promisify(exec);
 
 // Конфигурация
-const PASSWD_FILE = '/etc/ocserv/ocpasswd.codegap';
-const REMOTE_USER = 'root';
-const REMOTE_SERVERS = [
-  '185.229.66.80',
-  '193.124.181.80',
-  '103.85.115.152',
-  '185.94.167.84',
-  '77.110.110.106'
-];
+const PASSWD_FILE = process.env.VPN_PASSWD_FILE || '/etc/ocserv/ocpasswd.codegap';
+const REMOTE_USER = process.env.VPN_REMOTE_USER || 'root';
+const SERVERS_STR = process.env.VPN_SERVERS || '';
+const REMOTE_SERVERS = SERVERS_STR.split(',').map(s => s.trim()).filter(Boolean);
 
 const isWindows = process.platform === 'win32';
 
@@ -27,20 +22,19 @@ let mockUsers: VpnUser[] = [
 
 // Функция синхронизации
 async function syncToNodes() {
-  if (isWindows) {
-    console.log('--- Dev Mode: Имитация рассылки на сервера ---');
+  if (isWindows || REMOTE_SERVERS.length === 0) {
+    console.log('--- Sync Skipped: Dev mode or no servers configured ---');
     return;
   }
 
   const syncPromises = REMOTE_SERVERS.map(async (ip) => {
     try {
-      // SCP с таймаутом 5 секунд, чтобы не вешать API
       await execAsync(
         `scp -o ConnectTimeout=5 -o StrictHostKeyChecking=no ${PASSWD_FILE} ${REMOTE_USER}@${ip}:${PASSWD_FILE}`
       );
-      console.log(`Sync success: ${ip}`);
+      console.log(`Successfully synced to ${ip}`);
     } catch (err) {
-      console.error(`Sync failed for ${ip}:`, err);
+      console.error(`Failed to sync to ${ip}:`, err);
     }
   });
 

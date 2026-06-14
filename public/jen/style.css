@@ -109,7 +109,7 @@ body::before {
   flex-direction: row;
   z-index: 2;
   transform: translateY(0);
-  transition: transform 0.1s ease-out, opacity 0.1s ease-out, backdrop-filter 0.1s ease-out;
+  transition: transform 80ms ease-out, opacity 80ms ease-out, backdrop-filter 80ms ease-out;
   /*pointer-events: none;*/
   opacity: 1;
   backdrop-filter: blur(0px);
@@ -137,9 +137,9 @@ body::before {
   overflow: hidden;
   opacity: 0;
 
-  /* Плавные переходы */
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55),
-              opacity 0.6s ease;
+  /* Плавные переходы (укорочены для резкого переключения) */
+  transition: transform 240ms cubic-bezier(0.68, -0.55, 0.27, 1.55),
+              opacity 240ms ease;
   pointer-events: none;
 
   /* Центрирование текста */
@@ -164,23 +164,23 @@ body::before {
 .page2 p {
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .page2.show h1 {
   opacity: 1;
   transform: translateY(0);
-  transition-delay: 0.1s;
+  transition-delay: 60ms;
 }
 
 .page2.show p {
   opacity: 1;
   transform: translateY(0);
-  transition-delay: 0.3s;
+  transition-delay: 90ms;
 }
 
 .page2.show p:nth-of-type(2) {
-  transition-delay: 0.5s;
+  transition-delay: 120ms;
 }
 
 /*.page2 h1,

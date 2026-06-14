@@ -27,21 +27,45 @@ export default function ScrollSections() {
 
         function onScroll() {
             if (raf) cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => {
-                const scrollY = window.scrollY;
-                const vh = window.innerHeight || 800;
+                raf = requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+                    const vh = window.innerHeight || 800;
 
-                // вычисляем индекс активной "страницы" (гарантированно в диапазоне)
-                let active = Math.floor(scrollY / vh);
-                if (active < 0) active = 0;
-                if (active >= components.length) active = components.length - 1;
+                    const normalized = scrollY / vh;
+                    const firstFullEnd = 0.5;
+                    const firstFadeEnd = 0.75;
+                    const fadeWindow = 0.4;
+                    const fadePortion = 0.25;
 
-                // делаем строго одну карточку видимой (CSS transition даст плавность)
-                const finalOpacities = new Array(components.length).fill(0);
-                finalOpacities[active] = 1;
+                    const finalOpacities = components.map((_, i) => {
+                        if (i === 0) {
+                            if (normalized <= firstFullEnd) return 1;
+                            if (normalized >= firstFadeEnd) return 0;
+                            return 1 - (normalized - firstFullEnd) / (firstFadeEnd - firstFullEnd);
+                        }
 
-                setOpacities(finalOpacities);
-            });
+                        const fadeInStart = i - fadeWindow;
+                        const fadeInEnd = i;
+                        const fullEnd = i + 1;
+                        const fadeOutEnd = fullEnd + fadePortion;
+                        const isLast = i === components.length - 1;
+
+                        if (normalized <= fadeInStart) return 0;
+                        if (normalized < fadeInEnd) {
+                            const t = (normalized - fadeInStart) / (fadeInEnd - fadeInStart);
+                            return Math.pow(Math.min(1, Math.max(0, t)), 0.95);
+                        }
+                        if (normalized <= fullEnd) return 1;
+                        if (isLast) return 1;
+                        if (normalized < fadeOutEnd) {
+                            const t = (normalized - fullEnd) / (fadeOutEnd - fullEnd);
+                            return Math.pow(Math.max(0, 1 - t), 0.95);
+                        }
+                        return 0;
+                    });
+
+                    setOpacities(finalOpacities);
+                });
         }
 
         onScroll();
@@ -77,7 +101,7 @@ export default function ScrollSections() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                transition: 'opacity 300ms ease, transform 350ms ease',
+                                transition: 'opacity 160ms ease, transform 180ms ease',
                                 opacity: opacities[i],
                                 pointerEvents: opacities[i] > 0 ? 'auto' : 'none',
                                 transform: opacities[i] > 0 ? 'translateY(0)' : 'translateY(10px)',

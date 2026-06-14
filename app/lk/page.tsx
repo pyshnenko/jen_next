@@ -15,7 +15,6 @@ import {
 import { useAppDispatch } from "@/src/store/hooks";
 import { setUser } from "@/src/store/userDataStore";
 
-// Компонент для панели вкладки
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -34,6 +33,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
       style={{ width: '100%' }}
     >
+      {/* Ключевое изменение: рендерим контент только если вкладка активна */}
       {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
     </div>
   );
@@ -53,22 +53,20 @@ export default function LK(): React.ReactElement {
       try {
         const res = await axios.get("/api/auth", { withCredentials: true });
         if (res.status === 200 && res.data?.authenticated) {
-          console.log(res.data)
           dispatch(setUser(res.data.user));
           router.push("/lk/profile");
         }
       } catch (e) {
-        console.log(e)
-        // not authenticated
+        console.log("Not authenticated or error:", e);
       }
     })();
-  }, []);
+  }, [dispatch, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await axios.post("/api/users", register);
+      await axios.post("/api/users", register);
       setMessage("Регистрация успешна");
       setRegister({ login: "", pass: "", name: "", lastname: "" });
     } catch (err: any) {
@@ -93,147 +91,141 @@ export default function LK(): React.ReactElement {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    setMessage(""); // Сбрасываем сообщение при смене вкладки
   };
 
-  
-return (
-  <Box sx={{
-    minHeight: '100vh',
-    width: '100vw',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 4,
-    boxSizing: 'border-box',
-  }}>
-    <Paper elevation={6} sx={{ width: 360, padding:2 }}>
-      {/* Заголовки вкладок */}
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        variant="fullWidth"
-        centered
-        sx={{ mb: 2 }}
-      >
-        <Tab label="Регистрация" />
-        <Tab label="Вход" />
-      </Tabs>
+  return (
+    <Box sx={{
+      minHeight: '100vh',
+      width: '100vw',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 4,
+      boxSizing: 'border-box',
+    }}>
+      <Paper elevation={6} sx={{ width: 360, padding: 2 }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          variant="fullWidth"
+          centered
+          sx={{ mb: 2 }}
+        >
+          <Tab label="Регистрация" />
+          <Tab label="Вход" />
+        </Tabs>
 
-      {/* Контейнер с фиксированной высотой и анимацией */}
-      <Box
-        sx={{
-          position: 'relative',
-          height: 450, // фиксированная высота — подобрана под форму
-          overflow: 'hidden',
-        }}
-      >
-        <TabPanel value={value} index={0}>
-          <Box sx={{display: "flex",justifyContent: "center", width: '100%', height:"100%"}}>
-          <Paper
-            elevation={9}
-            component="form"
-            onSubmit={handleRegister}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              p: 2,
-              borderRadius: 2,
-              bgcolor: 'background.paper',
-              boxShadow: 1,
-              height: '100%',
-              transition: 'opacity 0.3s ease-in-out',
-              opacity: value === 0 ? 1 : 0,
-              position: value === 0 ? 'relative' : 'absolute',
-              width: '85%',
-            }}
-          >
-            <Typography variant="h6">Создать аккаунт</Typography>
-            <TextField
-              label="Логин"
-              value={register.login}
-              onChange={(e) => setRegister({ ...register, login: e.target.value })}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Пароль"
-              type="password"
-              value={register.pass}
-              onChange={(e) => setRegister({ ...register, pass: e.target.value })}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Имя"
-              value={register.name}
-              onChange={(e) => setRegister({ ...register, name: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Фамилия"
-              value={register.lastname}
-              onChange={(e) => setRegister({ ...register, lastname: e.target.value })}
-              fullWidth
-            />
-            <Button type="submit" variant="contained" fullWidth>
-              Зарегистрироваться
-            </Button>
-            <Typography color="text.secondary" variant="body2" align="center">
-              {message && value === 0 ? message : ''}
-            </Typography>
-            </Paper>
-          </Box>
-        </TabPanel>
+        <Box sx={{ position: 'relative', minHeight: 450, overflow: 'hidden' }}>
+          
+          {/* ФОРМА РЕГИСТРАЦИИ */}
+          <TabPanel value={value} index={0}>
+            <Box sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+              <Paper
+                elevation={9}
+                component="form"
+                onSubmit={handleRegister}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  width: '85%',
+                }}
+              >
+                <Typography variant="h6">Создать аккаунт</Typography>
+                <TextField
+                  label="Логин"
+                  name="reg_login"
+                  id="reg_login"
+                  autoComplete="new-username"
+                  value={register.login}
+                  onChange={(e) => setRegister(prev => ({ ...prev, login: e.target.value }))}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Пароль"
+                  type="password"
+                  name="reg_password"
+                  id="reg_password"
+                  autoComplete="new-password"
+                  value={register.pass}
+                  onChange={(e) => setRegister(prev => ({ ...prev, pass: e.target.value }))}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Имя"
+                  name="first_name"
+                  value={register.name}
+                  onChange={(e) => setRegister(prev => ({ ...prev, name: e.target.value }))}
+                  fullWidth
+                />
+                <TextField
+                  label="Фамилия"
+                  name="last_name"
+                  value={register.lastname}
+                  onChange={(e) => setRegister(prev => ({ ...prev, lastname: e.target.value }))}
+                  fullWidth
+                />
+                <Button type="submit" variant="contained" fullWidth>
+                  Зарегистрироваться
+                </Button>
+                {message && <Typography color="primary" variant="body2" align="center">{message}</Typography>}
+              </Paper>
+            </Box>
+          </TabPanel>
 
-        <TabPanel value={value} index={1}>
-          <Box sx={{display: "flex",justifyContent: "center", width: '100%', height:"100%"}}>
-            <Paper
-              elevation={9}
-              component="form"
-              onSubmit={handleLogin}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: 'background.paper',
-                boxShadow: 1,
-                height: '100%',
-                transition: 'opacity 0.3s ease-in-out',
-                opacity: value === 1 ? 1 : 0,
-                position: value === 1 ? 'relative' : 'absolute',
-                width: '85%',
-              }}
-            >
-              <Typography variant="h6">Вход в аккаунт</Typography>
-              <TextField
-                label="Логин"
-                value={loginForm.login}
-                onChange={(e) => setLoginForm({ ...loginForm, login: e.target.value })}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Пароль"
-                type="password"
-                value={loginForm.pass}
-                onChange={(e) => setLoginForm({ ...loginForm, pass: e.target.value })}
-                required
-                fullWidth
-              />
-              <Button type="submit" variant="contained" fullWidth>
-                Войти
-              </Button>
-              <Typography color="text.secondary" variant="body2" align="center">
-                {message && value === 1 ? message : ''}
-              </Typography>
-            </Paper>
-          </Box>
-        </TabPanel>
-      </Box>
-    </Paper>
-  </Box>
-);
+          {/* ФОРМА ВХОДА */}
+          <TabPanel value={value} index={1}>
+            <Box sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+              <Paper
+                elevation={9}
+                component="form"
+                onSubmit={handleLogin}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  width: '85%',
+                }}
+              >
+                <Typography variant="h6">Вход в аккаунт</Typography>
+                <TextField
+                  label="Логин"
+                  name="l1"
+                  id="l1"
+                  autoComplete="username"
+                  value={loginForm.login}
+                  onChange={(e) => setLoginForm(prev => ({ ...prev, login: e.target.value }))}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Пароль"
+                  type="password"
+                  name="password"
+                  id="password_field"
+                  autoComplete="current-password"
+                  value={loginForm.pass}
+                  onChange={(e) => setLoginForm(prev => ({ ...prev, pass: e.target.value }))}
+                  required
+                  fullWidth
+                />
+                <Button type="submit" variant="contained" fullWidth>
+                  Войти
+                </Button>
+                {message && <Typography color="error" variant="body2" align="center">{message}</Typography>}
+              </Paper>
+            </Box>
+          </TabPanel>
+
+        </Box>
+      </Paper>
+    </Box>
+  );
 }
